@@ -65,14 +65,15 @@ let pr = {
   if: /^if\((.+)\){?(.+)/,
   bOp: /^([a-zA-Z_][a-zA-Z0-9_]*|[0-9]+|['"].*['"])(==|===|!=|!==|>=|<=|[\+\-\*\/]=|[\+\-\*\/=<>])(.+)/,
   uOp: /^(?:(\+\+|\-\-|\!)([a-zA-Z_][a-zA-Z0-9_]*)|([a-zA-Z_][a-zA-Z0-9_]*)(\+\+|\-\-))/,
-  for: /^for\((.+)\){?(.+)/,
-  while: /^while\((.+)\){?(.+)/
+  for: /^for\(([^)]+)\){?(.+)/,
+  while: /^while\((.+)\){?(.+)/,
+  func: /^([^(]+)\((.*)\)/
 
 }
 //parse function, recursive parse using Regex until literal or identifier
 function parse(node) {
   let type = node.type;
-  let val = node.val;
+  let val = node.val.replace(/ /g, '');
   if (type !== 'identifier' && type !== 'literal') {
     if (pr.while.test(val)) {
       let m = val.match(pr.while);
@@ -128,6 +129,17 @@ function parse(node) {
       node.add(tmp);
       parse(tmp);
     }
+    else if (pr.func.test(val)) {
+      m = val.match(pr.func);
+      console.log(m);
+      temp = new Node("function", m[1]);
+      node.add(temp);
+      if (m.length === 3) {
+        tmp = new Node('argument', m[2]);
+        node.add(tmp);
+        parse(tmp)
+      }
+    }
     else if (pr.uOp.test(val)) {
       m = val.match(pr.uOp);
       if (m[1] === undefined) {
@@ -164,3 +176,5 @@ function parse(node) {
     }
   }
 }
+
+output(parser(`doSth(a+3)`))
