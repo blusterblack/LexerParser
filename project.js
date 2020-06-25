@@ -14,8 +14,9 @@ let rule = {
 function lexer(str) {
   //repeatly apply Regex to string, delete match until str empty
   let ans = [];
+  let rules = Object.entries(rule);
   while (str !== '') {
-    for ([type, rule] of Object.entries(rule)) {
+    for ([type, rule] of rules) {
       if (str.match(rule) !== null) {
         ans.push([str.match(rule)[0], type]);
         str = str.replace(rule, '');
@@ -131,7 +132,6 @@ function parse(node) {
     }
     else if (pr.func.test(val)) {
       m = val.match(pr.func);
-      console.log(m);
       temp = new Node("function", m[1]);
       node.add(temp);
       if (m.length === 3) {
@@ -176,5 +176,6 @@ function parse(node) {
     }
   }
 }
-
-output(parser(`doSth(a+3)`))
+const test = `dosth(a+3)`
+console.log(lexer(test));
+output(parser(test))
